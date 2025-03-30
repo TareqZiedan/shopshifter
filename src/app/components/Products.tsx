@@ -1,42 +1,12 @@
 import React from "react";
 import Image from "next/image";
-
-const Storage = [
-  {
-    serialNumber: 1,
-    name: "White Watch",
-    image: "/products/product1.jpg",
-    alt: "A Beautiful White Watch",
-    price: 19.99,
-  },
-  {
-    serialNumber: 2,
-    name: "White Watch",
-    image: "/products/product2.jpg",
-    alt: "A Beautiful White Watch",
-    price: 19.99,
-  },
-  {
-    serialNumber: 3,
-    name: "White Watch",
-    image: "/products/product3.jpg",
-    alt: "A Beautiful White Watch",
-    price: 19.99,
-  },
-  {
-    serialNumber: 4,
-    name: "White Watch",
-    image: "/products/product4.jpg",
-    alt: "A Beautiful White Watch",
-    price: 19.99,
-  },
-];
+import { products } from "../data/products";
 
 const Products = () => {
   return (
     <div className="mx-auto flex max-w-[1200px] justify-center">
       <section className="mx-auto grid grid-cols-1 gap-16 p-8 md:grid-cols-4">
-        {Storage.map((product) => (
+        {products.map((product) => (
           <article
             key={product.serialNumber}
             className="cursor-pointer rounded-md border-2 border-gray-200 text-center transition-transform hover:scale-105"
@@ -44,8 +14,8 @@ const Products = () => {
             <Image
               src={product.image}
               alt={product.alt}
-              width={200}
-              height={200}
+              width={250}
+              height={250}
               quality={100}
               className="h-[250px] w-[250px] object-cover"
             />
