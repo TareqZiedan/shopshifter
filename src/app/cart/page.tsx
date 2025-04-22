@@ -1,19 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
-
-type CartItem = {
-  id: number;
-  title: string;
-  price: number;
-  quantity: number;
-};
+import React from "react";
+import { useSelector } from "react-redux";
+import type { RootState } from "../redux/store";
 
 const Cart = () => {
-  const [items, setItems] = useState<CartItem[]>([
-    // Example item (remove this in production)
-    { id: 1, title: "Example Product", price: 19.99, quantity: 2 },
-  ]);
+  const items = useSelector((state: RootState) => state.cart.items);
 
   const total = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -30,7 +22,7 @@ const Cart = () => {
           {items.map((item) => (
             <li key={item.id} className="flex justify-between">
               <div>
-                <p className="font-medium">{item.title}</p>
+                <p className="font-medium">{item.name}</p>
                 <p className="text-sm text-gray-500">
                   ${item.price} × {item.quantity}
                 </p>
