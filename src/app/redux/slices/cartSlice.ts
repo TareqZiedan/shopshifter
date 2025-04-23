@@ -12,7 +12,14 @@ interface CartState {
 }
 
 const initialState: CartState = {
-  items: [],
+  items: [
+    {
+      id: "1",
+      name: "watch",
+      price: 19.99,
+      quantity: 2,
+    },
+  ],
 };
 
 const cartSlice = createSlice({
