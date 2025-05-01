@@ -1,18 +1,17 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../redux/store";
 import {
-  removeItem,
   updateQuantity,
+  removeFromCart,
   clearCart,
 } from "../redux/slices/cartSlice";
 
 const Cart = () => {
   const items = useSelector((state: RootState) => state.cart.items);
   const dispatch = useDispatch();
-  const [bought, setBought] = useState(false);
 
   const total = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -20,28 +19,27 @@ const Cart = () => {
   );
 
   const handleBuy = () => {
-    setBought(true);
-    dispatch(clearCart());
-    setTimeout(() => setBought(false), 2000);
+    // TODO: Implement buy functionality
+    console.log("Buying items:", items);
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-900">
-      <div className="w-full max-w-md rounded-lg border border-gray-700 bg-gray-800 p-6 shadow-md">
-        <h2 className="mb-4 text-xl font-semibold text-white">Your Cart</h2>
-        {bought && (
-          <div className="mb-4 rounded bg-green-700 px-3 py-2 text-center text-white">
-            Thank you for your purchase!
-          </div>
-        )}
+    <div className="min-h-screen bg-gray-900 p-8">
+      <div className="mx-auto max-w-4xl rounded-lg border border-gray-700 bg-gray-800 p-6 shadow-lg">
+        <h1 className="mb-6 text-2xl font-bold text-white">Shopping Cart</h1>
         {items.length === 0 ? (
           <p className="text-gray-400">Your cart is empty.</p>
         ) : (
-          <ul className="space-y-4">
+          <ul className="space-y-6">
             {items.map((item) => (
-              <li key={item.id} className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-white">{item.name}</p>
+              <li
+                key={item.id}
+                className="flex items-center gap-6 rounded-lg border border-gray-700 p-4"
+              >
+                <div className="flex-grow">
+                  <h3 className="text-lg font-medium text-white">
+                    {item.title}
+                  </h3>
                   <p className="text-sm text-gray-400">
                     ${item.price} × {item.quantity}
                   </p>
@@ -78,35 +76,43 @@ const Cart = () => {
                     </button>
                     <button
                       className="ml-4 cursor-pointer rounded bg-red-700 px-2 py-1 text-white hover:bg-red-800"
-                      onClick={() => dispatch(removeItem(item.id))}
+                      onClick={() => dispatch(removeFromCart(item.id))}
                       title="Remove item"
                     >
                       🗑️
                     </button>
                   </div>
                 </div>
-                <p className="font-semibold text-gray-200">
-                  ${(item.price * item.quantity).toFixed(2)}
-                </p>
+                <div className="text-right">
+                  <p className="text-lg font-semibold text-white">
+                    ${(item.price * item.quantity).toFixed(2)}
+                  </p>
+                </div>
               </li>
             ))}
           </ul>
         )}
-        <div className="mt-6 flex justify-between border-t border-gray-700 pt-4 text-right font-bold text-white">
+        <div className="mt-8 flex items-center justify-between border-t border-gray-700 pt-6">
           <button
-            className="w-28 cursor-pointer rounded bg-red-800 px-2 py-1 text-white transition-colors duration-500 hover:bg-black disabled:opacity-50"
+            className="rounded bg-red-800 px-4 py-2 text-white transition-colors duration-500 hover:bg-black disabled:opacity-50"
             onClick={() => dispatch(clearCart())}
             disabled={items.length === 0}
+            title="Remove all items from cart"
           >
             Clear Cart
           </button>
-          Total: ${total.toFixed(2)}
+          <div className="text-right">
+            <p className="text-lg font-semibold text-white">
+              Total: ${total.toFixed(2)}
+            </p>
+          </div>
         </div>
-        <div className="mt-6 flex flex-col space-y-2">
+        <div className="mt-6">
           <button
-            className="w-full cursor-pointer rounded bg-[#daa520] px-4 py-2 text-white hover:bg-[#daa510] disabled:opacity-50"
+            className="w-full rounded bg-[#daa520] px-4 py-2 text-white hover:bg-[#daa510] disabled:opacity-50"
             onClick={handleBuy}
             disabled={items.length === 0}
+            title="Proceed to checkout"
           >
             Buy Now
           </button>

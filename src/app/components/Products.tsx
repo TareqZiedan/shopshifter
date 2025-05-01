@@ -2,6 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useSelector, useDispatch } from "react-redux";
+import type { RootState } from "../redux/store";
+import { addToCart } from "../redux/slices/cartSlice";
+import LoadingModal from "./LoadingModal";
 
 type Product = {
   id: number;
@@ -12,6 +17,10 @@ type Product = {
 };
 
 const Products = () => {
+  const router = useRouter();
+  const dispatch = useDispatch();
+  const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
+  const [isRedirecting, setIsRedirecting] = useState(false);
   const [fetchedProducts, setFetchedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -33,8 +42,35 @@ const Products = () => {
     fetchProducts();
   }, []);
 
+  // Reset isRedirecting after navigation
+  useEffect(() => {
+    if (isRedirecting) {
+      const timer = setTimeout(() => setIsRedirecting(false), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [isRedirecting]);
+
+  const handleAddToCart = (product: Product) => {
+    if (!isLoggedIn) {
+      setIsRedirecting(true);
+      router.push("/auth");
+      return;
+    }
+
+    dispatch(
+      addToCart({
+        id: product.id,
+        title: product.title,
+        price: product.price,
+        image: product.image,
+        quantity: 1,
+      }),
+    );
+  };
+
   return (
     <div className="mx-auto flex max-w-[1200px] justify-center">
+      {isRedirecting && <LoadingModal />}
       <section className="mx-auto grid grid-cols-1 gap-16 p-8 md:grid-cols-4">
         {loading && (
           <div className="col-span-full text-center text-lg">
@@ -74,6 +110,7 @@ const Products = () => {
               <button
                 className="mt-auto w-full cursor-pointer bg-[#fff] py-2 text-black transition-colors hover:bg-[#daa520]"
                 aria-label={`Add ${product.title} to cart`}
+                onClick={() => handleAddToCart(product)}
               >
                 Add to Cart
               </button>
