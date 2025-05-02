@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
 import { ReduxProvider } from "./providers";
-import Navigation from "./components/Navigation";
-import Footer from "./components/Footer";
+import { ClientLayout } from "./components/ClientLayout";
 
 const geist = Geist({
   subsets: ["latin"],
@@ -23,9 +22,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={geist.className}>
         <ReduxProvider>
-          <Navigation />
-          <main className="min-h-screen">{children}</main>
-          <Footer />
+          <ClientLayout>{children}</ClientLayout>
         </ReduxProvider>
       </body>
     </html>

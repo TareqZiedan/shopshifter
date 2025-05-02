@@ -1,8 +1,9 @@
 "use client";
 
-import React from "react";
+import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../redux/store";
+import { stopLoading } from "../redux/slices/loadingSlice";
 import {
   updateQuantity,
   removeFromCart,
@@ -12,6 +13,10 @@ import {
 const Cart = () => {
   const items = useSelector((state: RootState) => state.cart.items);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(stopLoading());
+  }, [dispatch]);
 
   const total = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -94,7 +99,7 @@ const Cart = () => {
         )}
         <div className="mt-8 flex items-center justify-between border-t border-gray-700 pt-6">
           <button
-            className="rounded bg-red-800 px-4 py-2 text-white transition-colors duration-500 hover:bg-black disabled:opacity-50"
+            className="cursor-pointer rounded bg-red-800 px-4 py-2 text-white transition-colors duration-500 hover:bg-black disabled:opacity-50"
             onClick={() => dispatch(clearCart())}
             disabled={items.length === 0}
             title="Remove all items from cart"
@@ -109,7 +114,7 @@ const Cart = () => {
         </div>
         <div className="mt-6">
           <button
-            className="w-full rounded bg-[#daa520] px-4 py-2 text-white hover:bg-[#daa510] disabled:opacity-50"
+            className="w-full cursor-pointer rounded bg-[#daa520] px-4 py-2 text-white hover:bg-[#daa510] disabled:opacity-50"
             onClick={handleBuy}
             disabled={items.length === 0}
             title="Proceed to checkout"

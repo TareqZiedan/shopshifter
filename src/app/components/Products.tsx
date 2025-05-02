@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../redux/store";
 import { addToCart } from "../redux/slices/cartSlice";
-import LoadingModal from "./LoadingModal";
+import { useRedirect } from "../hooks/useRedirect";
 
 type Product = {
   id: number;
@@ -20,7 +20,7 @@ const Products = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
-  const [isRedirecting, setIsRedirecting] = useState(false);
+  const { redirect } = useRedirect();
   const [fetchedProducts, setFetchedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -42,18 +42,9 @@ const Products = () => {
     fetchProducts();
   }, []);
 
-  // Reset isRedirecting after navigation
-  useEffect(() => {
-    if (isRedirecting) {
-      const timer = setTimeout(() => setIsRedirecting(false), 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [isRedirecting]);
-
   const handleAddToCart = (product: Product) => {
     if (!isLoggedIn) {
-      setIsRedirecting(true);
-      router.push("/auth");
+      redirect("/auth");
       return;
     }
 
@@ -70,7 +61,6 @@ const Products = () => {
 
   return (
     <div className="mx-auto flex max-w-[1200px] justify-center">
-      {isRedirecting && <LoadingModal />}
       <section className="mx-auto grid grid-cols-1 gap-16 p-8 md:grid-cols-4">
         {loading && (
           <div className="col-span-full text-center text-lg">

@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import {
   login as reduxLogin,
   logout as reduxLogout,
 } from "../redux/slices/authSlice";
+import { stopLoading } from "../redux/slices/loadingSlice";
 
 type AuthMode = "login" | "signup";
 
@@ -45,6 +46,10 @@ const AuthCard = () => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(stopLoading());
+  }, [dispatch]);
 
   // Email regex for basic validation
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -137,15 +142,15 @@ const AuthCard = () => {
 
   if (loggedIn && user) {
     return (
-      <div className="min-h-screen bg-gray-900 p-8">
-        <div className="mx-auto max-w-sm rounded-lg border border-gray-700 bg-gray-800 p-6 shadow-md">
+      <div className="flex min-h-screen items-center justify-center bg-gray-900 p-4">
+        <div className="w-full max-w-md rounded-lg border border-gray-700 bg-gray-800 p-8 shadow-md">
           <h2 className="mb-4 text-xl font-semibold text-white">
             Welcome, {user.name}!
           </h2>
           <p className="mb-2 text-gray-300">Email: {user.email}</p>
           <button
             onClick={handleLogout}
-            className="mt-4 w-full rounded bg-red-600 px-4 py-2 text-white hover:bg-red-700"
+            className="mt-4 w-full cursor-pointer rounded bg-red-600 px-4 py-2 text-white hover:bg-red-700"
             title="Log out of your account"
           >
             Log out
@@ -156,8 +161,8 @@ const AuthCard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 p-8">
-      <div className="mx-auto max-w-sm rounded-lg border border-gray-700 bg-gray-800 p-6 shadow-md">
+    <div className="flex min-h-screen items-center justify-center bg-gray-900 p-4">
+      <div className="w-full max-w-md rounded-lg border border-gray-700 bg-gray-800 p-8 shadow-md">
         <h2 className="mb-4 text-xl font-semibold text-white">
           {mode === "login" ? "Login" : "Sign Up"}
         </h2>
@@ -225,7 +230,7 @@ const AuthCard = () => {
           </div>
           <button
             type="submit"
-            className="w-full rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-60"
+            className="w-full cursor-pointer rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-60"
             disabled={loading}
             title={
               mode === "login"
@@ -247,7 +252,7 @@ const AuthCard = () => {
             ? "Don't have an account?"
             : "Already have an account?"}{" "}
           <button
-            className="text-blue-400 underline hover:text-blue-300"
+            className="cursor-pointer text-blue-400 underline hover:text-blue-300"
             onClick={() => {
               setMode(mode === "login" ? "signup" : "login");
               setError(null);
