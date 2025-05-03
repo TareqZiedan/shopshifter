@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../redux/store";
 import { addToCart } from "../redux/slices/cartSlice";
 import { useRedirect } from "../hooks/useRedirect";
+import { stopLoading } from "../redux/slices/loadingSlice";
 
 type Product = {
   id: number;
@@ -17,7 +17,6 @@ type Product = {
 };
 
 const Products = () => {
-  const router = useRouter();
   const dispatch = useDispatch();
   const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
   const { redirect } = useRedirect();
@@ -36,11 +35,12 @@ const Products = () => {
         setError("Failed to load products. Please try again later.");
       } finally {
         setLoading(false);
+        dispatch(stopLoading());
       }
     };
 
     fetchProducts();
-  }, []);
+  }, [dispatch]);
 
   const handleAddToCart = (product: Product) => {
     if (!isLoggedIn) {

@@ -10,6 +10,7 @@ import { logout } from "../redux/slices/authSlice";
 // TODO: REMOVE LOCAL CACHE LOGIC WHEN USING REAL API (DO NOT DELETE THIS COMMENT)
 import { deleteCachedUser } from "../auth/page";
 import { useRedirect } from "../hooks/useRedirect";
+import { stopLoading } from "../redux/slices/loadingSlice";
 
 // ProfileMenu component for dropdown logic and accessibility
 const ProfileMenu = ({
@@ -163,10 +164,37 @@ const Navigation = () => {
   const [cartAnimation, setCartAnimation] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const handleLogout = () => {
-    dispatch(logout());
-    redirect("/");
+  const handleLogout = async () => {
+    try {
+      // Start loading state
+      dispatch(stopLoading());
+
+      // Perform logout actions
+      redirect("/");
+      dispatch(logout());
+
+      // Set timeout for loading state cleanup
+      const timeoutId = setTimeout(() => {
+        dispatch(stopLoading());
+      }, 1000);
+
+      return timeoutId;
+    } catch (error) {
+      console.error("Logout failed:", error);
+      dispatch(stopLoading()); // Ensure loading state is cleared even on error
+    }
   };
+
+  // Cleanup effect for logout timeout
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout | undefined;
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, []);
 
   const handleNavigation = (href: string) => {
     redirect(href);

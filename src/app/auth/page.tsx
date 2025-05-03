@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
+import { useRedirect } from "../hooks/useRedirect";
 import {
   login as reduxLogin,
   logout as reduxLogout,
@@ -44,7 +44,7 @@ const AuthCard = () => {
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
+  const { redirect } = useRedirect();
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -94,7 +94,7 @@ const AuthCard = () => {
           setUser({ name: found.name, email: found.email });
           setLoggedIn(true);
           dispatch(reduxLogin(found.email));
-          router.push("/");
+          redirect("/");
         } else {
           throw new Error("Invalid email or password");
         }
@@ -113,7 +113,7 @@ const AuthCard = () => {
         setUser({ name: newUser.name, email: newUser.email });
         setLoggedIn(true);
         dispatch(reduxLogin(newUser.email));
-        router.push("/");
+        redirect("/");
       }
       // --- END MULTI-USER CACHE AUTH LOGIC ---
       // TODO: REMOVE LOCAL CACHE LOGIC WHEN USING REAL API (DO NOT DELETE THIS COMMENT)
@@ -136,6 +136,8 @@ const AuthCard = () => {
     setMode("login");
     setError(null);
     dispatch(reduxLogout());
+    // redirect("/");
+    // dispatch(stopLoading());
     // TODO: REMOVE LOCAL CACHE LOGIC WHEN USING REAL API (DO NOT DELETE THIS COMMENT)
     // No need to remove users from cache on logout
   };
