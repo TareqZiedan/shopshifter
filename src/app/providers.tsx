@@ -2,22 +2,41 @@
 
 import { Provider } from "react-redux";
 import { store } from "./redux/store";
-import { useEffect } from "react";
-import { login } from "./redux/slices/authSlice";
+import { useEffect, useState } from "react";
+import { login, loadUser } from "./redux/slices/authSlice";
 
 export function ReduxProvider({ children }: { children: React.ReactNode }) {
+  const [isClient, setIsClient] = useState(false);
+
   useEffect(() => {
-    // TODO: REMOVE LOCAL CACHE LOGIC WHEN USING REAL API (DO NOT DELETE THIS COMMENT)
-    // For demo: support multiple users in localStorage as 'demoUsers'
+    setIsClient(true);
+
+    // First try to load any existing user session
+    store.dispatch(loadUser());
+
+    // Then check for demo users
     if (typeof window !== "undefined") {
       const cached = localStorage.getItem("demoUsers");
       if (cached) {
-        const users = JSON.parse(cached);
-        if (Array.isArray(users) && users.length > 0 && users[0].email) {
-          store.dispatch(login(users[0].email));
+        try {
+          const users = JSON.parse(cached);
+          if (Array.isArray(users) && users.length > 0 && users[0].email) {
+            // Only login if there isn't already a user session
+            const currentUser = localStorage.getItem("user");
+            if (!currentUser) {
+              store.dispatch(login(users[0].email));
+            }
+          }
+        } catch (error) {
+          console.error("Error loading demo users:", error);
         }
       }
     }
   }, []);
+
+  if (!isClient) {
+    return null;
+  }
+
   return <Provider store={store}>{children}</Provider>;
 }

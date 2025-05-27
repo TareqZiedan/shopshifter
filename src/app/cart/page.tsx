@@ -8,35 +8,35 @@ import {
   updateQuantity,
   removeFromCart,
   clearCart,
-} from "../redux/slices/cartSlice";
+} from "../redux/slices/authSlice";
 
 const Cart = () => {
-  const items = useSelector((state: RootState) => state.cart.items);
   const dispatch = useDispatch();
+  const cartItems = useSelector((state: RootState) => state.auth.cart);
 
   useEffect(() => {
     dispatch(stopLoading());
   }, [dispatch]);
 
-  const total = items.reduce(
+  const total = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0,
   );
 
   const handleBuy = () => {
     // TODO: Implement buy functionality
-    console.log("Buying items:", items);
+    console.log("Buying items:", cartItems);
   };
 
   return (
     <div className="min-h-screen bg-gray-900 p-8">
       <div className="mx-auto max-w-4xl rounded-lg border border-gray-700 bg-gray-800 p-6 shadow-lg">
         <h1 className="mb-6 text-2xl font-bold text-white">Shopping Cart</h1>
-        {items.length === 0 ? (
+        {cartItems.length === 0 ? (
           <p className="text-gray-400">Your cart is empty.</p>
         ) : (
           <ul className="space-y-6">
-            {items.map((item) => (
+            {cartItems.map((item) => (
               <li
                 key={item.id}
                 className="flex items-center gap-6 rounded-lg border border-gray-700 p-4"
@@ -101,7 +101,7 @@ const Cart = () => {
           <button
             className="cursor-pointer rounded bg-red-800 px-4 py-2 text-white transition-colors duration-500 hover:bg-black disabled:opacity-50"
             onClick={() => dispatch(clearCart())}
-            disabled={items.length === 0}
+            disabled={cartItems.length === 0}
             title="Remove all items from cart"
           >
             Clear Cart
@@ -116,7 +116,7 @@ const Cart = () => {
           <button
             className="w-full cursor-pointer rounded bg-[#daa520] px-4 py-2 text-white hover:bg-[#daa510] disabled:opacity-50"
             onClick={handleBuy}
-            disabled={items.length === 0}
+            disabled={cartItems.length === 0}
             title="Proceed to checkout"
           >
             Buy Now

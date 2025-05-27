@@ -157,38 +157,36 @@ const navLinks = [
 const Navigation = () => {
   const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
   const user = useSelector((state: RootState) => state.auth.user);
-  const cartItems = useSelector((state: RootState) => state.cart.items);
+  const cartItems = useSelector((state: RootState) => state.auth.cart);
+  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const dispatch = useDispatch();
   const pathname = usePathname();
   const { redirect } = useRedirect();
   const [cartAnimation, setCartAnimation] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const handleLogout = async () => {
     try {
-      // Start loading state
       dispatch(stopLoading());
-
-      // Perform logout actions
       redirect("/");
       dispatch(logout());
-
-      // Set timeout for loading state cleanup
       const timeoutId = setTimeout(() => {
         dispatch(stopLoading());
       }, 1000);
-
       return timeoutId;
     } catch (error) {
       console.error("Logout failed:", error);
-      dispatch(stopLoading()); // Ensure loading state is cleared even on error
+      dispatch(stopLoading());
     }
   };
 
-  // Cleanup effect for logout timeout
   useEffect(() => {
     let timeoutId: NodeJS.Timeout | undefined;
-
     return () => {
       if (timeoutId) {
         clearTimeout(timeoutId);
@@ -200,14 +198,16 @@ const Navigation = () => {
     redirect(href);
   };
 
-  // Trigger cart animation when items change
   useEffect(() => {
     setCartAnimation(true);
     const timer = setTimeout(() => setCartAnimation(false), 1000);
     return () => clearTimeout(timer);
   }, [cartItems]);
 
-  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  // Don't render anything until client-side hydration is complete
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <nav
@@ -224,7 +224,6 @@ const Navigation = () => {
         >
           <div className="text-xl font-bold text-gray-800">ShopShifter</div>
         </Link>
-        {/* Hamburger for mobile (optional, can be styled further) */}
         <button
           className="ml-2 cursor-pointer rounded p-2 focus:ring focus:outline-none md:hidden"
           aria-label="Open navigation menu"
@@ -260,7 +259,6 @@ const Navigation = () => {
               </Link>
             </li>
           ))}
-          {/* Show signup link only if not logged in */}
           {!isLoggedIn && (
             <li>
               <Link
@@ -273,7 +271,6 @@ const Navigation = () => {
               </Link>
             </li>
           )}
-          {/* Cart icon - only show when logged in */}
           {isLoggedIn && (
             <li className="relative">
               <Link
@@ -304,7 +301,6 @@ const Navigation = () => {
               </Link>
             </li>
           )}
-          {/* Profile icon and dropdown */}
           <li className="relative">
             {!isLoggedIn ? (
               <Link

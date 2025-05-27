@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../redux/store";
-import { addToCart } from "../redux/slices/cartSlice";
+import { addToCart } from "../redux/slices/authSlice";
 import { useRedirect } from "../hooks/useRedirect";
 import { stopLoading } from "../redux/slices/loadingSlice";
 import { useRouter } from "next/navigation";
