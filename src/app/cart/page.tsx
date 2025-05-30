@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../redux/store";
 import { stopLoading } from "../redux/slices/loadingSlice";
@@ -9,10 +9,12 @@ import {
   removeFromCart,
   clearCart,
 } from "../redux/slices/authSlice";
+import Link from "next/link";
 
 const Cart = () => {
   const dispatch = useDispatch();
   const cartItems = useSelector((state: RootState) => state.auth.cart);
+  const [purchaseComplete, setPurchaseComplete] = useState(false);
 
   useEffect(() => {
     dispatch(stopLoading());
@@ -24,9 +26,31 @@ const Cart = () => {
   );
 
   const handleBuy = () => {
-    // TODO: Implement buy functionality
-    console.log("Buying items:", cartItems);
+    dispatch(clearCart());
+    setPurchaseComplete(true);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
+  if (purchaseComplete) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-900 p-8">
+        <div className="mx-auto max-w-6xl rounded-lg border border-gray-700 bg-gray-800 p-12 text-center shadow-lg">
+          <h2 className="mb-6 text-4xl font-bold text-white">
+            Thank you for your purchase!
+          </h2>
+          <p className="mb-8 text-xl text-gray-400">
+            Your order has been placed successfully.
+          </p>
+          <Link
+            href="/"
+            className="inline-block cursor-pointer rounded-lg bg-blue-600 px-12 py-6 text-xl text-white transition-colors duration-200 hover:bg-blue-700"
+          >
+            Return Home
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-900 p-8">

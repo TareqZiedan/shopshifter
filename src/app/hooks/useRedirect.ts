@@ -13,8 +13,8 @@ export const useRedirect = () => {
     if (pathname === path) {
       return; // Don't do anything if we're already on this page
     }
-    dispatch(startLoading());
     router.push(path);
+    dispatch(startLoading());
   };
 
   return { redirect };

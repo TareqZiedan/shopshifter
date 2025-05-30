@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { stopLoading } from "../redux/slices/loadingSlice";
+import { loadUser } from "../redux/slices/authSlice";
 import { GlobalLoadingModal } from "./GlobalLoadingModal";
 import Navigation from "./Navigation";
 import Footer from "./Footer";
@@ -11,6 +12,7 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
   const dispatch = useDispatch();
 
   useEffect(() => {
+    dispatch(loadUser());
     dispatch(stopLoading());
   }, [dispatch]);
 
