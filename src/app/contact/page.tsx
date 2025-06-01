@@ -1,8 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { stopLoading } from "../redux/slices/loadingSlice";
+import { useDispatch } from "react-redux";
 
 export default function Contact() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(stopLoading());
+  }, [dispatch]);
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",

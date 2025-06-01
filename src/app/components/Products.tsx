@@ -8,6 +8,7 @@ import { addToCart } from "../redux/slices/authSlice";
 import { useRedirect } from "../hooks/useRedirect";
 import { stopLoading } from "../redux/slices/loadingSlice";
 import { useRouter } from "next/navigation";
+import { useTheme } from "../context/ThemeContext";
 
 type Product = {
   id: number;
@@ -20,6 +21,7 @@ type Product = {
 const Products = () => {
   const dispatch = useDispatch();
   const router = useRouter();
+  const { theme } = useTheme();
   const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
   const { redirect } = useRedirect();
   const [fetchedProducts, setFetchedProducts] = useState<Product[]>([]);
@@ -107,15 +109,19 @@ const Products = () => {
 
   return (
     <div className="mx-auto flex max-w-[1200px] justify-center">
-      <section className="mx-auto grid grid-cols-1 gap-16 p-8 md:grid-cols-4">
+      <section className="mx-auto grid grid-cols-1 gap-8 gap-y-8 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {loading && (
-          <div className="col-span-full text-center text-lg">
+          <div
+            className={`col-span-full text-center text-lg ${theme === "dark" ? "text-gray-50" : "text-gray-900"}`}
+          >
             Loading products...
           </div>
         )}
 
         {error && (
-          <div className="col-span-full text-center text-red-600">{error}</div>
+          <div className="col-span-full text-center text-red-600 dark:text-red-400">
+            {error}
+          </div>
         )}
 
         {!loading &&
@@ -123,34 +129,67 @@ const Products = () => {
           fetchedProducts.map((product) => (
             <article
               key={product.id}
-              className="flex h-full flex-col justify-between rounded-md border-2 border-gray-200 text-center transition-transform hover:scale-105"
+              className={`flex h-full flex-col justify-between rounded-lg border shadow-sm transition-all hover:scale-105 hover:shadow-md ${
+                theme === "dark"
+                  ? "border-gray-600 bg-gray-800"
+                  : "border-gray-200 bg-white"
+              }`}
             >
               <div
                 className="flex h-full cursor-pointer flex-col justify-between"
                 onClick={() => redirect(`/products/${product.id}`)}
                 onMouseEnter={() => handleProductHover(product.id)}
               >
-                <Image
-                  src={product.image}
-                  alt={product.title}
-                  width={250}
-                  height={250}
-                  quality={100}
-                  className="h-[250px] w-[250px] object-cover"
-                />
-                <h2 className="mx-2 my-2 font-semibold">
-                  {product.title.split(" ").slice(0, 10).join(" ")}
-                </h2>
+                <div
+                  className={`relative aspect-square w-full overflow-hidden ${
+                    theme === "dark" ? "bg-gray-700" : "bg-gray-50"
+                  }`}
+                >
+                  <Image
+                    src={product.image}
+                    alt={product.title}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    className="object-contain p-4"
+                    priority={product.id <= 4}
+                  />
+                </div>
 
-                <p className="mx-2 mb-4 text-sm text-gray-600">
-                  {product.description.split(" ").slice(0, 10).join(" ")}
-                </p>
+                <div className="flex flex-col gap-2 p-4">
+                  <div className="h-[3.5rem]">
+                    <h2
+                      className={`line-clamp-2 font-semibold ${
+                        theme === "dark" ? "text-gray-50" : "text-gray-900"
+                      }`}
+                    >
+                      {product.title}
+                    </h2>
+                  </div>
 
-                <div className="mb-4 font-bold">${product.price}</div>
+                  <p
+                    className={`line-clamp-3 text-sm ${
+                      theme === "dark" ? "text-gray-300" : "text-gray-600"
+                    }`}
+                  >
+                    {product.description}
+                  </p>
+
+                  <div
+                    className={`mt-2 text-lg font-bold ${
+                      theme === "dark" ? "text-white" : "text-gray-900"
+                    }`}
+                  >
+                    ${product.price.toFixed(2)}
+                  </div>
+                </div>
               </div>
 
               <button
-                className="w-full cursor-pointer bg-[#fff] py-2 text-black transition-colors hover:bg-[#daa520]"
+                className={`mt-auto w-full cursor-pointer py-3 text-white transition-colors ${
+                  theme === "dark"
+                    ? "bg-indigo-500 hover:bg-indigo-600"
+                    : "bg-indigo-600 hover:bg-indigo-700"
+                }`}
                 aria-label={`Add ${product.title} to cart`}
                 onClick={() => handleAddToCart(product)}
               >

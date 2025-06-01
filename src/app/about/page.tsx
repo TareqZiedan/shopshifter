@@ -1,14 +1,28 @@
 "use client";
 
-export default function About() {
-  return (
-    <main className="min-h-screen p-8">
-      <div className="mx-auto max-w-4xl">
-        <h1 className="mb-6 text-3xl font-bold">About ShopShifter</h1>
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { stopLoading } from "../redux/slices/loadingSlice";
 
-        <section className="mb-8">
-          <h2 className="mb-4 text-2xl font-semibold">Our Story</h2>
-          <p className="mb-4 text-gray-700">
+export default function About() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(stopLoading());
+  }, [dispatch]);
+
+  return (
+    <main className="bg-background min-h-screen p-8">
+      <div className="mx-auto max-w-4xl">
+        <h1 className="text-foreground mb-6 text-3xl font-bold">
+          About ShopShifter
+        </h1>
+
+        <section className="bg-card-background mb-8 rounded-lg p-6 shadow-sm">
+          <h2 className="text-card-foreground mb-4 text-2xl font-semibold">
+            Our Story
+          </h2>
+          <p className="text-muted-foreground mb-4">
             ShopShifter was founded with a simple mission: to make online
             shopping more convenient and enjoyable. We believe in providing a
             seamless shopping experience with a carefully curated selection of
@@ -16,9 +30,11 @@ export default function About() {
           </p>
         </section>
 
-        <section className="mb-8">
-          <h2 className="mb-4 text-2xl font-semibold">Our Values</h2>
-          <ul className="list-inside list-disc space-y-2 text-gray-700">
+        <section className="bg-card-background mb-8 rounded-lg p-6 shadow-sm">
+          <h2 className="text-card-foreground mb-4 text-2xl font-semibold">
+            Our Values
+          </h2>
+          <ul className="text-muted-foreground list-inside list-disc space-y-2">
             <li>
               Quality First: We only offer products that meet our high standards
             </li>
@@ -28,9 +44,11 @@ export default function About() {
           </ul>
         </section>
 
-        <section>
-          <h2 className="mb-4 text-2xl font-semibold">Our Team</h2>
-          <p className="text-gray-700">
+        <section className="bg-card-background rounded-lg p-6 shadow-sm">
+          <h2 className="text-card-foreground mb-4 text-2xl font-semibold">
+            Our Team
+          </h2>
+          <p className="text-muted-foreground">
             We are a dedicated team of professionals passionate about e-commerce
             and customer service. Our diverse backgrounds and expertise allow us
             to provide the best shopping experience possible.

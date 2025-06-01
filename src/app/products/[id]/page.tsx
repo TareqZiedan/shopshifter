@@ -4,10 +4,11 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../../redux/store";
-import { addToCart } from "../../redux/slices/cartSlice";
+import { addToCart } from "../../redux/slices/authSlice";
 import { useRedirect } from "../../hooks/useRedirect";
 import { stopLoading } from "../../redux/slices/loadingSlice";
 import { useRouter } from "next/navigation";
+import { useTheme } from "../../context/ThemeContext";
 
 type Product = {
   id: number;
@@ -37,6 +38,7 @@ export default function ProductDetail({
   const router = useRouter();
   const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
   const { redirect } = useRedirect();
+  const { theme } = useTheme();
 
   // Fetch product and related products
   useEffect(() => {
@@ -115,16 +117,18 @@ export default function ProductDetail({
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center text-lg">Loading product...</div>
+      <div className="bg-background flex min-h-screen items-center justify-center">
+        <div className="text-foreground text-center text-lg">
+          Loading product...
+        </div>
       </div>
     );
   }
 
   if (error || !product) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center text-red-600">
+      <div className="bg-background flex min-h-screen items-center justify-center">
+        <div className="text-destructive text-center">
           {error || "Product not found"}
         </div>
       </div>
@@ -132,11 +136,11 @@ export default function ProductDetail({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
+    <div className="bg-background min-h-screen py-6 sm:py-8 lg:py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
           {/* Product Image */}
-          <div className="relative aspect-square overflow-hidden rounded-lg bg-white p-4 shadow-lg">
+          <div className="bg-card-background relative aspect-square overflow-hidden rounded-lg p-4 shadow-sm sm:p-6 lg:p-8">
             <Image
               src={product.image}
               alt={product.title}
@@ -148,12 +152,14 @@ export default function ProductDetail({
           </div>
 
           {/* Product Info */}
-          <div className="flex flex-col space-y-6">
+          <div className="flex flex-col space-y-4 sm:space-y-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
+              <h1 className="text-card-foreground text-2xl font-bold sm:text-3xl lg:text-4xl">
                 {product.title}
               </h1>
-              <p className="mt-2 text-sm text-gray-500">{product.category}</p>
+              <p className="text-muted-foreground mt-2 text-sm sm:text-base">
+                {product.category}
+              </p>
             </div>
 
             {/* Rating */}
@@ -162,10 +168,10 @@ export default function ProductDetail({
                 {[...Array(5)].map((_, i) => (
                   <svg
                     key={i}
-                    className={`h-5 w-5 ${
+                    className={`h-4 w-4 sm:h-5 sm:w-5 ${
                       i < Math.round(product.rating.rate)
                         ? "text-yellow-400"
-                        : "text-gray-300"
+                        : "text-muted-foreground"
                     }`}
                     fill="currentColor"
                     viewBox="0 0 20 20"
@@ -174,26 +180,28 @@ export default function ProductDetail({
                   </svg>
                 ))}
               </div>
-              <span className="text-sm text-gray-500">
+              <span className="text-muted-foreground text-xs sm:text-sm">
                 ({product.rating.count} reviews)
               </span>
             </div>
 
             {/* Price */}
-            <div className="text-3xl font-bold text-gray-900">
+            <div className="text-primary-600 dark:text-primary-400 text-2xl font-bold sm:text-3xl">
               ${product.price.toFixed(2)}
             </div>
 
             {/* Description */}
             <div className="prose max-w-none">
-              <p className="text-gray-600">{product.description}</p>
+              <p className="text-muted-foreground text-sm sm:text-base">
+                {product.description}
+              </p>
             </div>
 
             {/* Quantity Selector */}
             <div className="flex items-center space-x-4">
               <label
                 htmlFor="quantity"
-                className="text-sm font-medium text-black"
+                className="text-card-foreground text-sm font-medium sm:text-base"
               >
                 Quantity
               </label>
@@ -201,7 +209,7 @@ export default function ProductDetail({
                 id="quantity"
                 value={quantity}
                 onChange={(e) => setQuantity(+e.target.value)}
-                className="cursor-pointer rounded-md border-gray-300 py-1.5 text-center text-black focus:border-blue-500 focus:ring-blue-500 focus:outline-none"
+                className="border-border bg-background text-foreground focus:border-primary-500 focus:ring-primary-500 cursor-pointer rounded-md py-1.5 text-center text-sm focus:outline-none sm:text-base"
               >
                 {[1, 2, 3, 4, 5].map((num) => (
                   <option key={num} value={num}>
@@ -214,16 +222,20 @@ export default function ProductDetail({
             {/* Add to Cart Button */}
             <button
               onClick={handleAddToCart}
-              className="w-full cursor-pointer rounded-md bg-blue-600 px-4 py-3 text-lg font-semibold text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+              className={`w-full cursor-pointer rounded-md px-4 py-3 text-base font-semibold text-white shadow-sm transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none sm:text-lg ${
+                theme === "dark"
+                  ? "bg-indigo-500 hover:bg-indigo-600"
+                  : "bg-indigo-600 hover:bg-indigo-700"
+              }`}
             >
               Add to Cart
             </button>
 
             {/* Additional Features */}
-            <div className="mt-8 space-y-4">
+            <div className="mt-6 space-y-3 sm:mt-8 sm:space-y-4">
               <div className="flex items-center space-x-2">
                 <svg
-                  className="h-6 w-6 text-green-500"
+                  className="h-5 w-5 text-green-500 sm:h-6 sm:w-6"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -235,13 +247,13 @@ export default function ProductDetail({
                     d="M5 13l4 4L19 7"
                   />
                 </svg>
-                <span className="text-sm text-gray-600">
+                <span className="text-muted-foreground text-xs sm:text-sm">
                   Free shipping worldwide
                 </span>
               </div>
               <div className="flex items-center space-x-2">
                 <svg
-                  className="h-6 w-6 text-green-500"
+                  className="h-5 w-5 text-green-500 sm:h-6 sm:w-6"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -253,59 +265,40 @@ export default function ProductDetail({
                     d="M5 13l4 4L19 7"
                   />
                 </svg>
-                <span className="text-sm text-gray-600">
-                  30-day return policy
-                </span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <svg
-                  className="h-6 w-6 text-green-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                <span className="text-sm text-gray-600">
-                  24/7 customer support
+                <span className="text-muted-foreground text-xs sm:text-sm">
+                  30-day money-back guarantee
                 </span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Related Products Section */}
+        {/* Related Products */}
         {relatedProducts.length > 0 && (
           <div className="mt-16">
-            <h2 className="mb-8 text-2xl font-bold text-gray-900">
+            <h2 className="text-card-foreground mb-8 text-2xl font-bold">
               Related Products
             </h2>
-            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {relatedProducts.map((relatedProduct) => (
                 <div
                   key={relatedProduct.id}
-                  className="flex cursor-pointer flex-col rounded-lg border border-gray-200 p-4 transition-transform hover:scale-105"
-                  onClick={() => redirect(`/products/${relatedProduct.id}`)}
+                  className="group bg-card-background cursor-pointer rounded-lg p-4 shadow-sm transition-all hover:scale-105 hover:shadow-md"
+                  onClick={() => router.push(`/products/${relatedProduct.id}`)}
                 >
-                  <div className="relative aspect-square">
+                  <div className="relative aspect-square overflow-hidden rounded-lg">
                     <Image
                       src={relatedProduct.image}
                       alt={relatedProduct.title}
                       fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                       className="object-contain"
                     />
                   </div>
-                  <div className="flex h-full flex-col justify-between">
-                    <h3 className="mt-4 text-lg font-semibold text-gray-900">
-                      {relatedProduct.title.split(" ").slice(0, 5).join(" ")}
+                  <div className="mt-4 flex h-20 flex-col justify-between">
+                    <h3 className="text-card-foreground line-clamp-2 text-sm font-medium">
+                      {relatedProduct.title}
                     </h3>
-                    <p className="mt-2 text-lg font-bold text-gray-900">
+                    <p className="text-primary-600 dark:text-primary-400 text-sm font-semibold">
                       ${relatedProduct.price.toFixed(2)}
                     </p>
                   </div>

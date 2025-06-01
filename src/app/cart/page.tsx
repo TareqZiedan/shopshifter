@@ -1,154 +1,199 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import type { RootState } from "../redux/store";
-import { stopLoading } from "../redux/slices/loadingSlice";
+import type { CartItem } from "../redux/slices/authSlice";
 import {
-  updateQuantity,
   removeFromCart,
+  updateQuantity,
   clearCart,
 } from "../redux/slices/authSlice";
+import type { RootState } from "../redux/store";
 import Link from "next/link";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import { stopLoading } from "../redux/slices/loadingSlice";
+import { useTheme } from "../context/ThemeContext";
 
-const Cart = () => {
-  const dispatch = useDispatch();
+export default function Cart() {
   const cartItems = useSelector((state: RootState) => state.auth.cart);
-  const [purchaseComplete, setPurchaseComplete] = useState(false);
+  const dispatch = useDispatch();
+  const { theme } = useTheme();
+  const [isCheckoutComplete, setIsCheckoutComplete] = useState(false);
 
   useEffect(() => {
     dispatch(stopLoading());
   }, [dispatch]);
 
+  const handleCheckout = () => {
+    dispatch(clearCart());
+    setIsCheckoutComplete(true);
+  };
+
   const total = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+    (sum: number, item: CartItem) => sum + item.price * item.quantity,
     0,
   );
 
-  const handleBuy = () => {
-    dispatch(clearCart());
-    setPurchaseComplete(true);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  if (purchaseComplete) {
+  if (isCheckoutComplete) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-900 p-8">
-        <div className="mx-auto max-w-6xl rounded-lg border border-gray-700 bg-gray-800 p-12 text-center shadow-lg">
-          <h2 className="mb-6 text-4xl font-bold text-white">
-            Thank you for your purchase!
-          </h2>
-          <p className="mb-8 text-xl text-gray-400">
-            Your order has been placed successfully.
-          </p>
-          <Link
-            href="/"
-            className="inline-block cursor-pointer rounded-lg bg-blue-600 px-12 py-6 text-xl text-white transition-colors duration-200 hover:bg-blue-700"
-          >
-            Return Home
-          </Link>
+      <main className="bg-background min-h-screen px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="bg-card-background rounded-lg p-8 text-center shadow-sm">
+            <div className="text-primary-600 dark:text-primary-400 mb-4 text-4xl">
+              ✅
+            </div>
+            <h2 className="text-card-foreground mb-4 text-2xl font-semibold">
+              Order Placed Successfully!
+            </h2>
+            <p className="text-muted-foreground mb-6">
+              Thank you for your purchase. Your order has been received and is
+              being processed.
+            </p>
+            <Link
+              href="/products"
+              className={`inline-block cursor-pointer rounded-md px-6 py-2 text-sm font-medium text-white transition-colors ${
+                theme === "dark"
+                  ? "bg-indigo-500 hover:bg-indigo-600"
+                  : "bg-indigo-600 hover:bg-indigo-700"
+              }`}
+            >
+              Continue Shopping
+            </Link>
+          </div>
         </div>
-      </div>
+      </main>
+    );
+  }
+
+  if (cartItems.length === 0) {
+    return (
+      <main className="bg-background min-h-screen px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <h1 className="text-foreground mb-8 text-center text-2xl font-bold sm:text-3xl md:text-4xl">
+            Your Cart
+          </h1>
+          <div className="bg-card-background rounded-lg p-8 text-center shadow-sm">
+            <p className="text-muted-foreground mb-4 text-lg">
+              Your cart is empty
+            </p>
+            <Link
+              href="/products"
+              className="bg-primary-600 text-primary-foreground hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 inline-block cursor-pointer rounded-md px-6 py-2 text-sm font-medium transition-colors"
+            >
+              Continue Shopping
+            </Link>
+          </div>
+        </div>
+      </main>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 p-8">
-      <div className="mx-auto max-w-4xl rounded-lg border border-gray-700 bg-gray-800 p-6 shadow-lg">
-        <h1 className="mb-6 text-2xl font-bold text-white">Shopping Cart</h1>
-        {cartItems.length === 0 ? (
-          <p className="text-gray-400">Your cart is empty.</p>
-        ) : (
-          <ul className="space-y-6">
-            {cartItems.map((item) => (
-              <li
-                key={item.id}
-                className="flex items-center gap-6 rounded-lg border border-gray-700 p-4"
-              >
-                <div className="flex-grow">
-                  <h3 className="text-lg font-medium text-white">
-                    {item.title}
-                  </h3>
-                  <p className="text-sm text-gray-400">
-                    ${item.price} × {item.quantity}
-                  </p>
-                  <div className="mt-2 flex items-center space-x-2">
-                    <button
-                      className="cursor-pointer rounded bg-gray-700 px-2 py-1 text-white hover:bg-gray-600"
-                      onClick={() =>
-                        dispatch(
-                          updateQuantity({
-                            id: item.id,
-                            quantity: Math.max(1, item.quantity - 1),
-                          }),
-                        )
-                      }
-                      disabled={item.quantity <= 1}
-                      title="Decrease quantity"
-                    >
-                      -
-                    </button>
-                    <span className="px-2 text-white">{item.quantity}</span>
-                    <button
-                      className="cursor-pointer rounded bg-gray-700 px-2 py-1 text-white hover:bg-gray-600"
-                      onClick={() =>
-                        dispatch(
-                          updateQuantity({
-                            id: item.id,
-                            quantity: item.quantity + 1,
-                          }),
-                        )
-                      }
-                      title="Increase quantity"
-                    >
-                      +
-                    </button>
-                    <button
-                      className="ml-4 cursor-pointer rounded bg-red-700 px-2 py-1 text-white hover:bg-red-800"
-                      onClick={() => dispatch(removeFromCart(item.id))}
-                      title="Remove item"
-                    >
-                      🗑️
-                    </button>
+    <main className="bg-background min-h-screen px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl">
+        <h1 className="text-foreground mb-8 text-center text-2xl font-bold sm:text-3xl md:text-4xl">
+          Your Cart
+        </h1>
+        <div className="grid gap-8 lg:grid-cols-3">
+          <div className="lg:col-span-2">
+            <div className="space-y-4">
+              {cartItems.map((item: CartItem) => (
+                <div
+                  key={item.id}
+                  className="bg-card-background flex items-center gap-4 rounded-lg p-4 shadow-sm"
+                >
+                  <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md">
+                    <Image
+                      src={item.image}
+                      alt={item.title}
+                      width={96}
+                      height={96}
+                      className="h-full w-full object-cover"
+                    />
                   </div>
+                  <div className="flex flex-1 flex-col">
+                    <h3 className="text-card-foreground text-lg font-semibold">
+                      {item.title}
+                    </h3>
+                    <p className="text-muted-foreground text-sm">
+                      ${item.price.toFixed(2)}
+                    </p>
+                    <div className="mt-2 flex items-center gap-2">
+                      <button
+                        onClick={() =>
+                          dispatch(
+                            updateQuantity({
+                              id: item.id,
+                              quantity: Math.max(0, item.quantity - 1),
+                            }),
+                          )
+                        }
+                        className="bg-muted text-muted-foreground hover:bg-muted/80 cursor-pointer rounded-md px-2 py-1"
+                      >
+                        -
+                      </button>
+                      <span className="text-card-foreground">
+                        {item.quantity}
+                      </span>
+                      <button
+                        onClick={() =>
+                          dispatch(
+                            updateQuantity({
+                              id: item.id,
+                              quantity: item.quantity + 1,
+                            }),
+                          )
+                        }
+                        className="bg-muted text-muted-foreground hover:bg-muted/80 cursor-pointer rounded-md px-2 py-1"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => dispatch(removeFromCart(item.id))}
+                    className="cursor-pointer rounded-md bg-red-600 px-3 py-1 text-sm font-medium text-white transition-colors hover:bg-red-700"
+                  >
+                    Remove
+                  </button>
                 </div>
-                <div className="text-right">
-                  <p className="text-lg font-semibold text-white">
-                    ${(item.price * item.quantity).toFixed(2)}
-                  </p>
+              ))}
+            </div>
+          </div>
+          <div className="lg:col-span-1">
+            <div className="bg-card-background rounded-lg p-6 shadow-sm">
+              <h2 className="text-card-foreground mb-4 text-xl font-semibold">
+                Order Summary
+              </h2>
+              <div className="space-y-2">
+                <div className="text-muted-foreground flex justify-between">
+                  <span>Subtotal</span>
+                  <span>${total.toFixed(2)}</span>
                 </div>
-              </li>
-            ))}
-          </ul>
-        )}
-        <div className="mt-8 flex items-center justify-between border-t border-gray-700 pt-6">
-          <button
-            className="cursor-pointer rounded bg-red-800 px-4 py-2 text-white transition-colors duration-500 hover:bg-black disabled:opacity-50"
-            onClick={() => dispatch(clearCart())}
-            disabled={cartItems.length === 0}
-            title="Remove all items from cart"
-          >
-            Clear Cart
-          </button>
-          <div className="text-right">
-            <p className="text-lg font-semibold text-white">
-              Total: ${total.toFixed(2)}
-            </p>
+                <div className="text-muted-foreground flex justify-between">
+                  <span>Shipping</span>
+                  <span>Free</span>
+                </div>
+                <div className="border-border my-4 border-t" />
+                <div className="text-card-foreground flex justify-between text-lg font-semibold">
+                  <span>Total</span>
+                  <span>${total.toFixed(2)}</span>
+                </div>
+              </div>
+              <button
+                onClick={handleCheckout}
+                className={`mt-6 w-full cursor-pointer rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+                  theme === "dark"
+                    ? "bg-indigo-500 text-white hover:bg-indigo-600"
+                    : "bg-indigo-600 text-white hover:bg-indigo-700"
+                }`}
+              >
+                Checkout
+              </button>
+            </div>
           </div>
         </div>
-        <div className="mt-6">
-          <button
-            className="w-full cursor-pointer rounded bg-[#daa520] px-4 py-2 text-white hover:bg-[#daa510] disabled:opacity-50"
-            onClick={handleBuy}
-            disabled={cartItems.length === 0}
-            title="Proceed to checkout"
-          >
-            Buy Now
-          </button>
-        </div>
       </div>
-    </div>
+    </main>
   );
-};
-
-export default Cart;
+}

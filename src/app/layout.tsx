@@ -1,16 +1,20 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
+import { ThemeProvider } from "./context/ThemeContext";
+import { ThemeScript } from "./theme-script";
 import { ReduxProvider } from "./providers";
 import { ClientLayout } from "./components/ClientLayout";
 
-const geist = Geist({
-  subsets: ["latin"],
-});
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "ShopShifter",
-  description: "Your modern e-commerce solution",
+  description: "Your one-stop shop for all your needs",
+  icons: [
+    { rel: "icon", url: "/favicon.svg", type: "image/svg+xml" },
+    { rel: "icon", url: "/favicon.ico" },
+  ],
 };
 
 export default function RootLayout({
@@ -19,10 +23,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={geist.className}>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <ThemeScript />
+      </head>
+      <body className={inter.className}>
         <ReduxProvider>
-          <ClientLayout>{children}</ClientLayout>
+          <ThemeProvider>
+            <ClientLayout>{children}</ClientLayout>
+          </ThemeProvider>
         </ReduxProvider>
       </body>
     </html>
