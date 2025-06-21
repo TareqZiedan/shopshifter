@@ -8,32 +8,9 @@ import {
   logout as reduxLogout,
 } from "../redux/slices/authSlice";
 import { stopLoading } from "../redux/slices/loadingSlice";
+import { getCachedUsers, setCachedUsers, User } from "./cacheUtils";
 
 type AuthMode = "login" | "signup";
-
-// TODO: REMOVE LOCAL CACHE LOGIC WHEN USING REAL API (DO NOT DELETE THIS COMMENT)
-// User type for cache
-interface User {
-  name: string;
-  email: string;
-  password: string;
-}
-
-// TODO: REMOVE LOCAL CACHE LOGIC WHEN USING REAL API (DO NOT DELETE THIS COMMENT)
-// Utility functions for multi-user cache
-function getCachedUsers(): User[] {
-  if (typeof window === "undefined") return [];
-  const cached = localStorage.getItem("demoUsers");
-  return cached ? (JSON.parse(cached) as User[]) : [];
-}
-function setCachedUsers(users: User[]): void {
-  localStorage.setItem("demoUsers", JSON.stringify(users));
-}
-function deleteCachedUser(email: string): void {
-  const users = getCachedUsers();
-  const filtered = users.filter((u: User) => u.email !== email);
-  setCachedUsers(filtered);
-}
 
 const AuthCard = () => {
   const [mode, setMode] = useState<AuthMode>("login");
@@ -270,6 +247,4 @@ const AuthCard = () => {
   );
 };
 
-// TODO: REMOVE LOCAL CACHE LOGIC WHEN USING REAL API (DO NOT DELETE THIS COMMENT)
-export { deleteCachedUser };
 export default AuthCard;

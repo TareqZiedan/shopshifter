@@ -8,7 +8,7 @@ import { usePathname } from "next/navigation";
 import type { RootState } from "../redux/store";
 import { logout } from "../redux/slices/authSlice";
 // TODO: REMOVE LOCAL CACHE LOGIC WHEN USING REAL API (DO NOT DELETE THIS COMMENT)
-import { deleteCachedUser } from "../auth/page";
+import { deleteCachedUser } from "../auth/cacheUtils";
 import { useRedirect } from "../hooks/useRedirect";
 import { stopLoading } from "../redux/slices/loadingSlice";
 import { useTheme } from "../context/ThemeContext";
